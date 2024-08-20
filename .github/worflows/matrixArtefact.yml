@@ -1,0 +1,73 @@
+name: Matrix and artefacts
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull-request:
+    branches:
+      - main
+      - develop
+  
+  schedule:
+    - cron: '0 0 * * 1' 
+
+jobs:
+    build:
+      runs-on: ${{matrix.os}}
+      strategy:
+        fail-fast: false
+        max-parallel: 2
+        matrix:
+          os: [ubuntu-latest, windows-latest, macos-latest]
+          node: [16, 18, 20]
+          exclude:
+            - os: ubuntu-latest
+              node: 16
+            
+            - os: windows-latest
+              node: 18
+
+            - os: macos-latest
+              node: 20
+
+          include:
+            - os: windows-latest
+              node: 22 
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node }}
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Build the project
+          run: npm run build
+
+        - name: Archive production artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: dist-${{ matrix.os }}-node${{ matrix.node }}
+            path: dist/
+
+    conditional-job:
+      runs-on: ubuntu-latest
+      needs: build
+      if: github.ref == 'refs/head/main'
+      steps:
+        - name: Download artifact
+          uses: actions/download-artifact@v4
+          with:
+            name: dist-ubuntu-latest-node18
+            path: dist/
+
+        - name: Simulate deployment
+          run: echo "Deploying the application ..."
+
