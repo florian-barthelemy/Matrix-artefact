@@ -60,7 +60,7 @@ jobs:
     conditional-job:
       runs-on: ubuntu-latest
       needs: build
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && matrix.os == 'ubuntu-latest' && matrix.node == 18
       steps:
         - name: Download artifact
           uses: actions/download-artifact@v4
@@ -69,6 +69,5 @@ jobs:
             path: dist/
 
         - name: Simulate deployment
-          if: matrix.os == 'ubuntu-latest' && matrix.node == 18
           run: echo "Deploying the application ..."
 
