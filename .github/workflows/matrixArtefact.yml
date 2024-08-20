@@ -69,5 +69,6 @@ jobs:
             path: dist/
 
         - name: Simulate deployment
+          if: matrix.os == 'ubuntu-latest' && matrix.node == 18
           run: echo "Deploying the application ..."
 
