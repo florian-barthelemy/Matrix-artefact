@@ -60,7 +60,7 @@ jobs:
     conditional-job:
       runs-on: ubuntu-latest
       needs: build
-      if: github.ref == 'refs/heads/main' && matrix.os == 'ubuntu-latest' && matrix.node == 18
+      if: github.ref == 'refs/heads/main' && needs.build.outputs.artifact-ubuntu-latest-node18 == 'exists'
       steps:
         - name: Download artifact
           uses: actions/download-artifact@v4
